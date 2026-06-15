@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 
 const SAANS = "'Saans', Inter, system-ui, sans-serif";
 const TOBIAS = "'Tobias', Georgia, serif";
 const MONO = "'Saans Mono', ui-monospace, monospace";
+
+const MENU_ITEMS = ["How it Works", "For businesses", "Book a discovery call"];
 
 const VALUES = [
   { label: "1000+ DATA POINTS", icon: "dots" },
@@ -39,6 +41,7 @@ function ValueIcon({ kind }: { kind: string }) {
 
 export function MenuMobile() {
   const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
 
   // Sentinel sits where the nav rests; when it scrolls out, the nav gains a bg.
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -53,13 +56,17 @@ export function MenuMobile() {
     return () => io.disconnect();
   }, []);
 
-  // Opens a bottom sheet (to be designed) — no-op stub for now.
-  const onMenu = () => {};
+  const onMenu = () => setOpen((o) => !o);
 
   return (
     <div style={{ minHeight: "100vh", background: "#fff", padding: 12, boxSizing: "border-box" }}>
+      {/* Tap-away backdrop — closes the dropdown when tapping outside it. */}
+      {open && (
+        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 49 }} />
+      )}
+
       {/* Fixed nav — full width, transparent over the hero, gains a dark bg on
-          scroll (no width morph). Hamburger only; no links. */}
+          scroll or when the menu is open (no width morph). Hamburger only. */}
       <div
         style={{
           position: "fixed",
@@ -72,13 +79,13 @@ export function MenuMobile() {
       >
         <motion.div
           initial={false}
-          animate={{ backgroundColor: scrolled ? "rgba(0,0,0,0.64)" : "rgba(0,0,0,0)" }}
+          animate={{ backgroundColor: scrolled || open ? "rgba(0,0,0,0.64)" : "rgba(0,0,0,0)" }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           style={{
             borderRadius: 16,
             overflow: "hidden",
-            backdropFilter: scrolled ? "blur(64px)" : "none",
-            WebkitBackdropFilter: scrolled ? "blur(64px)" : "none",
+            backdropFilter: scrolled || open ? "blur(64px)" : "none",
+            WebkitBackdropFilter: scrolled || open ? "blur(64px)" : "none",
             pointerEvents: "auto",
           }}
         >
@@ -97,7 +104,7 @@ export function MenuMobile() {
 
             <button
               onClick={onMenu}
-              aria-label="Open menu"
+              aria-label={open ? "Close menu" : "Open menu"}
               style={{
                 width: 44,
                 height: 44,
@@ -111,12 +118,101 @@ export function MenuMobile() {
                 flexShrink: 0,
               }}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 7H21M3 17H14" stroke="#fff" strokeWidth="2" strokeLinecap="square" />
-              </svg>
+              {open ? (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 5L19 19M19 5L5 19" stroke="#fff" strokeWidth="2" strokeLinecap="square" />
+                </svg>
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 7H21M3 17H14" stroke="#fff" strokeWidth="2" strokeLinecap="square" />
+                </svg>
+              )}
             </button>
           </nav>
         </motion.div>
+
+        {/* Dropdown menu — opens 4px below the nav (not a bottom sheet). */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              key="menu-panel"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                marginTop: 4,
+                borderRadius: 20,
+                background: "rgba(0,0,0,0.48)",
+                backdropFilter: "blur(64px)",
+                WebkitBackdropFilter: "blur(64px)",
+                padding: 8,
+                pointerEvents: "auto",
+                transformOrigin: "top",
+              }}
+            >
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                {/* Links */}
+                <div style={{ display: "flex", flexDirection: "column", padding: "0 12px" }}>
+                  {MENU_ITEMS.map((label, i) => (
+                    <a
+                      key={label}
+                      href="#"
+                      style={{
+                        padding: "20px 0",
+                        borderBottom: i < MENU_ITEMS.length - 1 ? "0.5px solid rgba(255,255,255,0.16)" : "none",
+                        fontFamily: SAANS,
+                        fontSize: 16,
+                        fontWeight: 500,
+                        lineHeight: "20px",
+                        color: "#fff",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {label}
+                    </a>
+                  ))}
+                </div>
+
+                {/* Buttons */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <button
+                    style={{
+                      width: "100%",
+                      height: 44,
+                      borderRadius: 12,
+                      border: "1.5px solid rgba(255,255,255,0.16)",
+                      background: "transparent",
+                      color: "#fff",
+                      fontFamily: SAANS,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Log in
+                  </button>
+                  <button
+                    style={{
+                      width: "100%",
+                      height: 44,
+                      borderRadius: 12,
+                      border: "none",
+                      background: "#fff",
+                      color: "#000",
+                      fontFamily: SAANS,
+                      fontSize: 14,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Join today
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Hero card */}
