@@ -229,7 +229,7 @@ export function BiomarkersArc({ words, seekIndex = 0, seekToken = 0, seekDir = 1
               style={{
                 fontFamily: "'Saans', Inter, system-ui, sans-serif",
                 fontSize: p.text.fontSize,
-                fontWeight: 400,
+                fontWeight: 500,
                 lineHeight: `${p.text.fontSize * 1.33}px`,
                 letterSpacing: `${-p.text.fontSize * 0.02}px`,
                 whiteSpace: "nowrap",
@@ -275,7 +275,7 @@ export function BiomarkersArc({ words, seekIndex = 0, seekToken = 0, seekDir = 1
               transformOrigin: "0% 50%",
               pointerEvents: "none",
               fontFamily: "'Saans', Inter, system-ui, sans-serif",
-              fontWeight: 400,
+              fontWeight: 500,
               color: "#fff",
               whiteSpace: "nowrap",
             }}
