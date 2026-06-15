@@ -39,7 +39,8 @@
       "Bash(git -c user.name=Saugat -c user.email=saugat.yadav@everlab.com.au commit -q -m 'Mobile /track: carousel, arc dial gauge, pill marquee \\(responsive\\) *)",
       "Bash(git commit -q -m 'Rebuild mobile ArcDial as continuous biomarker strip *)",
       "Bash(git config *)",
-      "Bash(git commit -q -m 'Mobile arc: continuous per-second biomarker sweep *)"
+      "Bash(git commit -q -m 'Mobile arc: continuous per-second biomarker sweep *)",
+      "Bash(git commit -q -m 'Mobile arc: fix pivot drift + discrete tick-tick stepping *)"
     ]
   }
 }

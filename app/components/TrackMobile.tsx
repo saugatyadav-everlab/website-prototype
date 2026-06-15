@@ -28,7 +28,8 @@ const count = (c: number) => CATEGORIES[c].biomarkers.length;
 
 const TICK_MS = 1000;     // one biomarker per second — like a second hand
 const DEG = 4;            // arc degrees between biomarker ticks
-const SWEEP = { duration: TICK_MS / 1000, ease: "linear" as const };
+// A fast settle each second → a discrete "tick", not a continuous glide.
+const TICK_SNAP = { type: "spring" as const, stiffness: 700, damping: 38 };
 const JUMP = { type: "spring" as const, stiffness: 120, damping: 22 };
 
 // ── Category carousel (circular) ───────────────────────────────────────────────
@@ -119,7 +120,7 @@ function ArcDial({
   activeCount,
 }: {
   tick: number;
-  trans: typeof SWEEP | typeof JUMP;
+  trans: typeof TICK_SNAP | typeof JUMP;
   onSwipe: (dir: 1 | -1) => void;
   draggingRef: React.MutableRefObject<boolean>;
   activeCount: number;
@@ -173,7 +174,7 @@ function ArcDial({
           <motion.g
             animate={{ rotate: -tick * DEG }}
             transition={trans}
-            style={{ transformOrigin: `${cx}px ${cy}px` }}
+            style={{ transformBox: "view-box", originX: `${cx}px`, originY: `${cy}px` }}
           >
             {lines}
             {dots}
@@ -235,7 +236,7 @@ function PillMarquee({ active }: { active: number }) {
 export function TrackMobile() {
   const [tick, setTick] = useState(0);
   const [catPos, setCatPos] = useState(0); // monotonic, for the carousel
-  const [trans, setTrans] = useState<typeof SWEEP | typeof JUMP>(SWEEP);
+  const [trans, setTrans] = useState<typeof TICK_SNAP | typeof JUMP>(TICK_SNAP);
   const tickRef = useRef(0);
   const activeRef = useRef(0);
   const catPosRef = useRef(0);
@@ -257,7 +258,7 @@ export function TrackMobile() {
         moveCatPos(catPosRef.current + 1);
       }
       tickRef.current = nt;
-      setTrans(SWEEP);
+      setTrans(TICK_SNAP);
       setTick(nt);
     }, TICK_MS);
     return () => window.clearTimeout(id);
