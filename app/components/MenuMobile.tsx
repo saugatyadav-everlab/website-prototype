@@ -9,6 +9,23 @@ const MONO = "'Saans Mono', ui-monospace, monospace";
 
 const MENU_ITEMS = ["How it Works", "For businesses", "Book a discovery call"];
 
+const PANEL_EASE = [0.22, 1, 0.36, 1] as const;
+
+// Container: collapse/expand height + fade + blur on appear/disappear.
+const panelVariants = {
+  closed: { opacity: 0, height: 0, filter: "blur(8px)", transition: { duration: 0.26, ease: PANEL_EASE } },
+  open: { opacity: 1, height: "auto", filter: "blur(0px)", transition: { duration: 0.32, ease: PANEL_EASE } },
+};
+// Orchestrates the stagger of the rows/buttons (reversed on close).
+const listVariants = {
+  closed: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
+  open: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+};
+const itemVariants = {
+  closed: { opacity: 0, y: 8 },
+  open: { opacity: 1, y: 0, transition: { duration: 0.28, ease: PANEL_EASE } },
+};
+
 const VALUES = [
   { label: "1000+ DATA POINTS", icon: "dots" },
   { label: "LONGEVITY EXPERT-LED", icon: "check" },
@@ -145,80 +162,80 @@ export function MenuMobile() {
           {open && (
             <motion.div
               key="menu-panel"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              variants={panelVariants}
+              initial="closed"
+              animate="open"
+              exit="closed"
               style={{
                 marginTop: 4,
                 borderRadius: 20,
                 background: "rgba(0,0,0,0.64)",
                 backdropFilter: "blur(64px)",
                 WebkitBackdropFilter: "blur(64px)",
-                padding: "0 8px 8px",
+                overflow: "hidden",
                 pointerEvents: "auto",
-                transformOrigin: "top",
               }}
             >
-              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <motion.div variants={listVariants} style={{ display: "flex", flexDirection: "column", padding: "0 8px 8px" }}>
                 {/* Links */}
-                <div style={{ display: "flex", flexDirection: "column", padding: "0 12px" }}>
-                  {MENU_ITEMS.map((label, i) => (
-                    <a
-                      key={label}
-                      href="#"
-                      style={{
-                        padding: "20px 0",
-                        borderBottom: i < MENU_ITEMS.length - 1 ? "0.5px solid rgba(255,255,255,0.16)" : "none",
-                        fontFamily: SAANS,
-                        fontSize: 16,
-                        fontWeight: 500,
-                        lineHeight: "20px",
-                        color: "#fff",
-                        textDecoration: "none",
-                      }}
-                    >
-                      {label}
-                    </a>
-                  ))}
-                </div>
+                {MENU_ITEMS.map((label, i) => (
+                  <motion.a
+                    key={label}
+                    href="#"
+                    variants={itemVariants}
+                    style={{
+                      padding: "20px 12px",
+                      borderBottom: i < MENU_ITEMS.length - 1 ? "0.5px solid rgba(255,255,255,0.16)" : "none",
+                      fontFamily: SAANS,
+                      fontSize: 16,
+                      fontWeight: 500,
+                      lineHeight: "20px",
+                      color: "#fff",
+                      textDecoration: "none",
+                    }}
+                  >
+                    {label}
+                  </motion.a>
+                ))}
 
                 {/* Buttons */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <button
-                    style={{
-                      width: "100%",
-                      height: 52,
-                      borderRadius: 12,
-                      border: "1.5px solid rgba(255,255,255,0.16)",
-                      background: "transparent",
-                      color: "#fff",
-                      fontFamily: SAANS,
-                      fontSize: 16,
-                      fontWeight: 500,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Log in
-                  </button>
-                  <button
-                    style={{
-                      width: "100%",
-                      height: 52,
-                      borderRadius: 12,
-                      border: "none",
-                      background: "#fff",
-                      color: "#000",
-                      fontFamily: SAANS,
-                      fontSize: 16,
-                      fontWeight: 500,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Join today
-                  </button>
-                </div>
-              </div>
+                <motion.button
+                  variants={itemVariants}
+                  style={{
+                    width: "100%",
+                    height: 52,
+                    marginTop: 4,
+                    borderRadius: 12,
+                    border: "1.5px solid rgba(255,255,255,0.16)",
+                    background: "transparent",
+                    color: "#fff",
+                    fontFamily: SAANS,
+                    fontSize: 16,
+                    fontWeight: 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  Log in
+                </motion.button>
+                <motion.button
+                  variants={itemVariants}
+                  style={{
+                    width: "100%",
+                    height: 52,
+                    marginTop: 8,
+                    borderRadius: 12,
+                    border: "none",
+                    background: "#fff",
+                    color: "#000",
+                    fontFamily: SAANS,
+                    fontSize: 16,
+                    fontWeight: 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  Join today
+                </motion.button>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
