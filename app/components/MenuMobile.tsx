@@ -103,7 +103,7 @@ export function MenuMobile() {
                 height: 44,
                 borderRadius: 12,
                 border: "none",
-                background: "#fff",
+                background: "transparent",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -112,7 +112,7 @@ export function MenuMobile() {
               }}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 7H21M3 17H14" stroke="black" strokeWidth="2" strokeLinecap="square" />
+                <path d="M3 7H21M3 17H14" stroke="#fff" strokeWidth="2" strokeLinecap="square" />
               </svg>
             </button>
           </nav>
