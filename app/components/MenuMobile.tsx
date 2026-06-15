@@ -121,7 +121,7 @@ export function MenuMobile() {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <motion.path
                   initial={false}
-                  animate={{ d: open ? "M5 5 L19 19" : "M3 7 L21 7" }}
+                  animate={{ d: open ? "M7 7 L17 17" : "M3 7 L21 7" }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   stroke="#fff"
                   strokeWidth="2"
@@ -129,7 +129,7 @@ export function MenuMobile() {
                 />
                 <motion.path
                   initial={false}
-                  animate={{ d: open ? "M19 5 L5 19" : "M3 17 L14 17" }}
+                  animate={{ d: open ? "M17 7 L7 17" : "M3 17 L14 17" }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   stroke="#fff"
                   strokeWidth="2"
