@@ -33,7 +33,8 @@
       "Bash(curl -s -o public/menu/logo.svg \"https://www.figma.com/api/mcp/asset/695290bf-79d8-433a-bd50-2649e63a6270\")",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git -c user.name=Saugat -c user.email=saugat.yadav@everlab.com.au commit -q -m 'Checkpoint: menu hero, track biomarker arc, control sticky-scroll *)"
+      "Bash(git -c user.name=Saugat -c user.email=saugat.yadav@everlab.com.au commit -q -m 'Checkpoint: menu hero, track biomarker arc, control sticky-scroll *)",
+      "Bash(git -c user.name=Saugat -c user.email=saugat.yadav@everlab.com.au commit -q -m 'Arc: orange dot active marker instead of number counter *)"
     ]
   }
 }

@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useDialKit, DialRoot } from "dialkit";
-import { RollingNumber } from "./RollingNumber";
 
 interface Props {
   words: string[];                          // full flat list of all biomarkers
@@ -43,8 +42,8 @@ export function BiomarkersArc({ words, seekIndex = 0, seekToken = 0, onPillIndex
       blurAmount:  [45, 0,  120, 5],
     },
     counter: {
-      distanceFromArc: [64, 0, 400, 4],
-      fontSize:        [102, 40, 200, 2],
+      distanceFromArc: [44, 0, 400, 4],
+      dotSize:         [16, 4, 60, 2],
     },
   });
 
@@ -278,19 +277,20 @@ export function BiomarkersArc({ words, seekIndex = 0, seekToken = 0, onPillIndex
         );
       })}
 
-      {/* Counter — rolling digits, right-aligned (right edge anchored, grows left) */}
+      {/* Active marker — orange dot for the current biomarker */}
       <div
         style={{
           position: "absolute",
           left: counterRightX,
           top: counterY,
-          transform: "translate(-100%, -50%)",
+          transform: "translate(-50%, -50%)",
+          width: p.counter.dotSize,
+          height: p.counter.dotSize,
+          borderRadius: "50%",
+          background: "#FF6B35",
           pointerEvents: "none",
-          userSelect: "none",
         }}
-      >
-        <RollingNumber value={pillFlatIdx + 1} fontSize={p.counter.fontSize} fontWeight={700} />
-      </div>
+      />
     </div>
     </>
   );
