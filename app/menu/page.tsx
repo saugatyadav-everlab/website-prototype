@@ -2,10 +2,33 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion } from "motion/react";
+import dynamic from "next/dynamic";
 
 const SAANS = "'Saans', Inter, system-ui, sans-serif";
 const TOBIAS = "'Tobias', Georgia, serif";
 const MONO = "'Saans Mono', ui-monospace, monospace";
+
+const MOBILE_BP = 768;
+
+const MenuMobile = dynamic(
+  () => import("../components/MenuMobile").then((m) => m.MenuMobile),
+  { ssr: false },
+);
+
+// Responsive wrapper: mobile component below the breakpoint, desktop above.
+export default function MenuPage() {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BP - 1}px)`);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  if (isMobile === null) return null;
+  return isMobile ? <MenuMobile /> : <MenuDesktop />;
+}
 
 const NAV_LINKS = ["How it Works", "For business", "Book a discovery call"];
 
@@ -121,7 +144,7 @@ function ValueIcon({ kind }: { kind: string }) {
   );
 }
 
-export default function MenuPage() {
+function MenuDesktop() {
   const [floating, setFloating] = useState(false);
 
   // Sentinel sits where the nav rests in the hero; when it scrolls out of view
