@@ -11,9 +11,14 @@ const BiomarkersArc = dynamic(
   { ssr: false },
 );
 
+const TrackMobile = dynamic(
+  () => import("../components/TrackMobile").then((m) => m.TrackMobile),
+  { ssr: false },
+);
+
+const MOBILE_BP = 768;
+
 const ITEM_HEIGHT = 63; // measured: 63px per row (font 20, py 20+20, border 1)
-const VISIBLE     = 8;
-const LIST_HEIGHT = ITEM_HEIGHT * VISIBLE;
 const N           = CATEGORIES.length;
 
 // Flatten every biomarker across all categories into one continuous stream.
@@ -28,7 +33,22 @@ CATEGORIES.forEach((cat, ci) => {
   });
 });
 
+// Responsive wrapper: mobile component below the breakpoint, desktop above.
 export default function Home() {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${MOBILE_BP - 1}px)`);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  if (isMobile === null) return null; // avoid SSR/first-paint mismatch
+  return isMobile ? <TrackMobile /> : <TrackDesktop />;
+}
+
+function TrackDesktop() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   // DialKit — category-list change animation (with easing visualiser/editor)
@@ -39,12 +59,15 @@ export default function Home() {
       ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
     },
     shiftDistance: [40, 0, 120, 2], // how far the active label slides right
+    visibleCount: [10, 3, 16, 1],   // how many categories are visible at once
   });
   const LIST_EASE = listCfg.transition;
   const DOT_SHIFT = listCfg.shiftDistance;
+  const VISIBLE = Math.round(listCfg.visibleCount);
+  const LIST_HEIGHT = ITEM_HEIGHT * VISIBLE;
 
-  // Seek token — bumping this tells the arc to jump to seek.index
-  const [seek, setSeek] = useState<{ index: number; token: number }>({ index: 0, token: 0 });
+  // Seek token — bumping this tells the arc to step to seek.index (in seek.dir)
+  const [seek, setSeek] = useState<{ index: number; token: number; dir: number }>({ index: 0, token: 0, dir: 1 });
   const seekTokenRef = useRef(0);
 
   // trackPos is a monotonic row position; the list track translates to
@@ -65,15 +88,22 @@ export default function Home() {
     setActiveIndex(FLAT_CATEGORY_INDEX[flatIndex] ?? 0);
   };
 
-  // Manual: jump arc to the first biomarker of a category
-  const goToCategory = (ci: number) => {
+  // Manual: step the arc to a category's first biomarker. `explicitDir` comes
+  // from the nav buttons; otherwise we use the shortest signed direction.
+  const goToCategory = (ci: number, explicitDir?: 1 | -1) => {
     const wrapped = ((ci % N) + N) % N;
+    let dir = explicitDir;
+    if (dir === undefined) {
+      let d = (((wrapped - activeIndex) % N) + N) % N;
+      if (d > N / 2) d -= N;
+      dir = d >= 0 ? 1 : -1;
+    }
     setActiveIndex(wrapped);
     seekTokenRef.current += 1;
-    setSeek({ index: CATEGORY_FIRST_WORD[wrapped], token: seekTokenRef.current });
+    setSeek({ index: CATEGORY_FIRST_WORD[wrapped], token: seekTokenRef.current, dir });
   };
 
-  const navigate = (dir: 1 | -1) => goToCategory(activeIndex + dir);
+  const navigate = (dir: 1 | -1) => goToCategory(activeIndex + dir, dir);
 
   // Windowed rows around trackPos (a couple above for exit anim, the rest below)
   const trackInt = Math.round(trackPos);
@@ -114,8 +144,9 @@ export default function Home() {
           {/* Category list — fixed dot at top, list track glides under it with
               easing; the active label slides right to sit beside the dot. */}
           <div style={{ position: "relative" }}>
-            {/* Viewport */}
-            <div style={{ position: "relative", height: LIST_HEIGHT, overflow: "hidden" }}>
+            {/* Viewport — clip-path clips the bottom/sides cleanly (no peeking
+                rows) but extends above the top so exiting rows can fly away. */}
+            <div style={{ position: "relative", height: LIST_HEIGHT, overflow: "visible", clipPath: "inset(-90px 0px 0px 0px)" }}>
               {/* Animated track — windowed rows, each absolutely positioned */}
               <motion.div
                 animate={{ y: -trackPos * ITEM_HEIGHT }}
@@ -125,11 +156,20 @@ export default function Home() {
                 {rows.map((i) => {
                   const real = ((i % N) + N) % N;
                   const cat = CATEGORIES[real];
-                  const isActive = i === trackInt;
+                  const offset = i - trackInt; // 0 = active (top), <0 above, >=VISIBLE below
+                  const isActive = offset === 0;
+                  // Off-window rows fade + blur out (fly away at top, fly in at
+                  // the bottom); visible rows are crisp.
+                  const offWindow = offset < 0 || offset >= VISIBLE;
+                  const opacity = offWindow ? 0 : 1;
+                  const blur = offWindow ? 12 : 0;
                   return (
-                    <div
+                    <motion.div
                       key={i}
                       onClick={() => goToCategory(real)}
+                      initial={false}
+                      animate={{ opacity, filter: `blur(${blur}px)` }}
+                      transition={LIST_EASE}
                       style={{
                         position: "absolute",
                         top: i * ITEM_HEIGHT,
@@ -139,6 +179,7 @@ export default function Home() {
                         display: "flex",
                         alignItems: "center",
                         cursor: "pointer",
+                        pointerEvents: opacity === 0 ? "none" : "auto",
                       }}
                     >
                       <motion.span
@@ -146,7 +187,7 @@ export default function Home() {
                         transition={LIST_EASE}
                         style={{
                           fontFamily: "var(--font-family-secondary, 'Saans', Inter, system-ui, sans-serif)",
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: 570,
                           lineHeight: "22px",
                           letterSpacing: 0,
@@ -156,7 +197,7 @@ export default function Home() {
                       >
                         {cat.label}
                       </motion.span>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </motion.div>
@@ -171,7 +212,7 @@ export default function Home() {
                     left: 0,
                     right: 0,
                     height: 1,
-                    background: "rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.06)",
                     pointerEvents: "none",
                     zIndex: 1,
                   }}
@@ -191,17 +232,6 @@ export default function Home() {
                 zIndex: 3,
               }} />
 
-              {/* Bottom fade — there's always more below */}
-              <div style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 120,
-                background: "linear-gradient(to top, #0f0f0f 30%, transparent)",
-                pointerEvents: "none",
-                zIndex: 2,
-              }} />
             </div>
 
             {/* Up / Down nav buttons — absolute, 40px to the left of the list, vertically centred */}
@@ -255,6 +285,7 @@ export default function Home() {
             words={FLAT_WORDS}
             seekIndex={seek.index}
             seekToken={seek.token}
+            seekDir={seek.dir}
             onPillIndexChange={handlePillIndex}
           />
         </div>

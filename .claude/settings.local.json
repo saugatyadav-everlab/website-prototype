@@ -34,7 +34,9 @@
       "Bash(git init *)",
       "Bash(git add *)",
       "Bash(git -c user.name=Saugat -c user.email=saugat.yadav@everlab.com.au commit -q -m 'Checkpoint: menu hero, track biomarker arc, control sticky-scroll *)",
-      "Bash(git -c user.name=Saugat -c user.email=saugat.yadav@everlab.com.au commit -q -m 'Arc: orange dot active marker instead of number counter *)"
+      "Bash(git -c user.name=Saugat -c user.email=saugat.yadav@everlab.com.au commit -q -m 'Arc: orange dot active marker instead of number counter *)",
+      "Bash(curl -s -o /tmp/mobile_track.png \"https://www.figma.com/api/mcp/asset/ae0dbec7-2a2c-4866-aff0-d4cdb1171c87\")",
+      "Bash(git -c user.name=Saugat -c user.email=saugat.yadav@everlab.com.au commit -q -m 'Mobile /track: carousel, arc dial gauge, pill marquee \\(responsive\\) *)"
     ]
   }
 }

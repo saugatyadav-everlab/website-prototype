@@ -8,16 +8,17 @@ interface Props {
   words: string[];                          // full flat list of all biomarkers
   seekIndex?: number;                       // flat index to jump the pill to
   seekToken?: number;                       // bump to trigger a seek
+  seekDir?: number;                         // +1 down / -1 up — which way to step
   onPillIndexChange?: (flatIndex: number) => void; // current pill flat index
 }
 
-export function BiomarkersArc({ words, seekIndex = 0, seekToken = 0, onPillIndexChange }: Props) {
+export function BiomarkersArc({ words, seekIndex = 0, seekToken = 0, seekDir = 1, onPillIndexChange }: Props) {
   // ── DialKit controls ──────────────────────────────────────────────────────
   const p = useDialKit("Biomarker Arc", {
     arc: {
       radius:  [300, 100, 600, 10],
       centerX: [40,  -200, 400, 10],
-      centerY: [550, 100, 900, 10],
+      centerY: [580, 100, 900, 10],
       gap:     [8,   4,   40,  1],
       slots:   [20,  6,   28,  2],
     },
@@ -68,14 +69,21 @@ export function BiomarkersArc({ words, seekIndex = 0, seekToken = 0, onPillIndex
   const [indexOffset,     setIndexOffset]     = useState(seekIndex - basePillId);
 
   const pillWordIdxRef = useRef(basePillId);
+  const [transitioning, setTransitioning] = useState(false);
 
-  // Seek — re-map the content offset so the pill lands directly on seekIndex.
-  // No fill reset → wheel keeps spinning, no redraw. Counter jumps straight to
-  // the target biomarker's number (can go up or down).
+  // Seek — step ONE slot in the scroll direction and re-map the content so the
+  // target lands in the pill. The words blur during the single step, then
+  // sharpen → an elegant one-step switch (no spin, no instant pop).
+  const TRANS_BLUR = 6;
   const firstSeek = useRef(true);
   useEffect(() => {
     if (firstSeek.current) { firstSeek.current = false; return; }
-    setIndexOffset(seekIndex - pillWordIdxRef.current);
+    const dir = seekDir >= 0 ? 1 : -1;
+    setIndexOffset(seekIndex - (pillWordIdxRef.current + dir));
+    setRotationTick((n) => n + dir);
+    setTransitioning(true);
+    const t = window.setTimeout(() => setTransitioning(false), p.timing.curveDuration * 1000 + 120);
+    return () => window.clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seekToken]);
 
@@ -123,7 +131,7 @@ export function BiomarkersArc({ words, seekIndex = 0, seekToken = 0, onPillIndex
     return () => clearTimeout(t);
   }, [pillName, p.timing.curveDuration]);
 
-  // Tell the parent which flat biomarker is in the pill → drives active category
+  // Tell the parent which flat biomarker is in the pill → drives active category.
   useEffect(() => {
     if (rotationStarted) onPillIndexChange?.(pillFlatIdx);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -251,7 +259,7 @@ export function BiomarkersArc({ words, seekIndex = 0, seekToken = 0, onPillIndex
               fontSize: slot.fontSize,
               lineHeight: slot.lineHeight,
               letterSpacing: slot.letterSpacing,
-              filter: `blur(${slot.blur}px)`,
+              filter: `blur(${slot.blur + (transitioning ? TRANS_BLUR : 0)}px)`,
             }}
             transition={CURVE}
             transformTemplate={(t) => {
