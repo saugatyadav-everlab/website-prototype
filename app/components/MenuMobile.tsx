@@ -184,7 +184,7 @@ export function MenuMobile() {
                     href="#"
                     variants={itemVariants}
                     style={{
-                      padding: "16px 12px",
+                      padding: "12px 12px",
                       fontFamily: SAANS,
                       fontSize: 16,
                       fontWeight: 500,
@@ -203,7 +203,7 @@ export function MenuMobile() {
                   style={{
                     width: "100%",
                     height: 52,
-                    marginTop: 4,
+                    marginTop: 12,
                     borderRadius: 12,
                     border: "1.5px solid rgba(255,255,255,0.16)",
                     background: "transparent",
