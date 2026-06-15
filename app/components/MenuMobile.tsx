@@ -118,15 +118,24 @@ export function MenuMobile() {
                 flexShrink: 0,
               }}
             >
-              {open ? (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 5L19 19M19 5L5 19" stroke="#fff" strokeWidth="2" strokeLinecap="square" />
-                </svg>
-              ) : (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 7H21M3 17H14" stroke="#fff" strokeWidth="2" strokeLinecap="square" />
-                </svg>
-              )}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <motion.path
+                  initial={false}
+                  animate={{ d: open ? "M5 5 L19 19" : "M3 7 L21 7" }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  stroke="#fff"
+                  strokeWidth="2"
+                  strokeLinecap="square"
+                />
+                <motion.path
+                  initial={false}
+                  animate={{ d: open ? "M19 5 L5 19" : "M3 17 L14 17" }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  stroke="#fff"
+                  strokeWidth="2"
+                  strokeLinecap="square"
+                />
+              </svg>
             </button>
           </nav>
         </motion.div>
