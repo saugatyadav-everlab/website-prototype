@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"/Users/saugat.yadav/Library/Application Support/com.raycast.macos/NodeJS/runtime/22.22.2/bin/\")",
+      "Bash(NODE_BIN=\"/Users/saugat.yadav/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin\" *)",
+      "Bash(mkdir -p /Users/saugat.yadav/Desktop/code/body/app /Users/saugat.yadav/Desktop/code/body/public *)",
+      "Bash(npm install *)",
+      "Bash(find /Users/saugat.yadav -name \"npm\" -type f 2>/dev/null | head -5)",
+      "Read(//opt/workbrew/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(mkdir -p /Users/saugat.yadav/Desktop/code/body/.claude)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(find /Users/saugat.yadav /opt /usr/local -name \"npm\" -type f 2>/dev/null | head -5 *)",
+      "Bash(ls /Users/saugat.yadav/.nvm/versions/node 2>/dev/null *)",
+      "Bash(ls /pkg/env/global/bin/ 2>/dev/null | grep -E \"node|npm|pnpm|yarn|bun|next\" *)",
+      "Bash(mdfind -name \"npm\")",
+      "Bash(/Users/saugat.yadav/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node -e 'const cp=require\\('\\\\''child_process'\\\\''\\); cp.execFile\\('\\\\''corepack'\\\\'', ['\\\\''--version'\\\\''], \\(e,o\\)=>console.log\\(o,e\\)\\)')",
+      "Bash(tar -xzf npm.tgz)",
+      "mcp__d733d54c-ac96-492b-9a2c-2d21b3f747d0__whoami",
+      "mcp__d733d54c-ac96-492b-9a2c-2d21b3f747d0__get_design_context",
+      "Bash(gh api *)",
+      "Bash(python3 -c \"import json,sys; data=json.load\\(sys.stdin\\); [print\\(i['path']\\) for i in data.get\\('tree',[]\\)]\")",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git mv *)",
+      "mcp__d733d54c-ac96-492b-9a2c-2d21b3f747d0__get_screenshot",
+      "Bash(curl -s -o /tmp/control_design.png \"https://www.figma.com/api/mcp/asset/b0882c96-03d7-441d-9588-8654e95e58e8\")",
+      "Read(//tmp/**)",
+      "mcp__d733d54c-ac96-492b-9a2c-2d21b3f747d0__get_metadata",
+      "Bash(/Users/saugat.yadav/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node -e ' *)",
+      "Bash(curl -s -o /tmp/menu_design.png \"https://www.figma.com/api/mcp/asset/5ed3f007-d56e-4647-ba38-ba9ff89dc905\")",
+      "Bash(curl -s -o public/menu/hero.png \"https://www.figma.com/api/mcp/asset/8b16964e-9a3b-45be-a245-219ab01cdf7b\")",
+      "Bash(curl -s -o public/menu/logo.svg \"https://www.figma.com/api/mcp/asset/695290bf-79d8-433a-bd50-2649e63a6270\")",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git -c user.name=Saugat -c user.email=saugat.yadav@everlab.com.au commit -q -m 'Checkpoint: menu hero, track biomarker arc, control sticky-scroll *)"
+    ]
+  }
+}
