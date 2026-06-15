@@ -7,21 +7,38 @@ import { RollingNumber } from "./RollingNumber";
 
 const SAANS = "'Saans', Inter, system-ui, sans-serif";
 const N = CATEGORIES.length;
-const AUTO_MS = 4500;          // auto-advance one category every X ms
-const DEG = 4.2;               // arc degrees per biomarker tick
-const VISIBLE_DEG = 82;        // how far around the top the ticks are drawn
-const DIAL_EASE = { type: "spring" as const, stiffness: 90, damping: 18 };
+
+// ── Flat biomarker stream across all categories ────────────────────────────────
+const FLAT_CAT: number[] = [];   // category index for each biomarker
+const CAT_FIRST: number[] = [];  // first flat index of each category
+const IS_START: boolean[] = [];  // true at the first biomarker of a category
+CATEGORIES.forEach((c, ci) => {
+  CAT_FIRST[ci] = FLAT_CAT.length;
+  c.biomarkers.forEach((_, k) => {
+    IS_START[FLAT_CAT.length] = k === 0;
+    FLAT_CAT.push(ci);
+  });
+});
+const TOTAL = FLAT_CAT.length;
+
 const mod = (n: number) => ((n % N) + N) % N;
+const modT = (n: number) => ((n % TOTAL) + TOTAL) % TOTAL;
+const catOf = (tick: number) => FLAT_CAT[modT(tick)];
 const count = (c: number) => CATEGORIES[c].biomarkers.length;
+
+const TICK_MS = 1000;     // one biomarker per second — like a second hand
+const DEG = 4;            // arc degrees between biomarker ticks
+const SWEEP = { duration: TICK_MS / 1000, ease: "linear" as const };
+const JUMP = { type: "spring" as const, stiffness: 120, damping: 22 };
 
 // ── Category carousel (circular) ───────────────────────────────────────────────
 function CategoryCarousel({
   pos,
-  goTo,
+  onPick,
   draggingRef,
 }: {
   pos: number;
-  goTo: (p: number) => void;
+  onPick: (monotonicIndex: number) => void;
   draggingRef: React.MutableRefObject<boolean>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -54,7 +71,7 @@ function CategoryCarousel({
         onDragEnd={(_, info) => {
           draggingRef.current = false;
           const curX = trackX(pos) + info.offset.x;
-          goTo(Math.round((w / 2 - barW / 2 - curX) / step));
+          onPick(Math.round((w / 2 - barW / 2 - curX) / step));
         }}
       >
         {win.map((i) => {
@@ -63,7 +80,7 @@ function CategoryCarousel({
           return (
             <motion.div
               key={i}
-              onClick={() => goTo(i)}
+              onClick={() => onPick(i)}
               animate={{ opacity: isActive ? 1 : 0.5 }}
               transition={{ duration: 0.3 }}
               style={{
@@ -93,61 +110,49 @@ function CategoryCarousel({
   );
 }
 
-// ── Arc dial: continuous biomarker-tick strip, per-category scroll ─────────────
+// ── Arc dial: continuous biomarker strip sweeping one tick per second ──────────
 function ArcDial({
-  pos,
-  dir,
-  goTo,
+  tick,
+  trans,
+  onSwipe,
   draggingRef,
+  activeCount,
 }: {
-  pos: number;
-  dir: number;
-  goTo: (p: number) => void;
+  tick: number;
+  trans: typeof SWEEP | typeof JUMP;
+  onSwipe: (dir: 1 | -1) => void;
   draggingRef: React.MutableRefObject<boolean>;
+  activeCount: number;
 }) {
-  const active = mod(pos);
   const R = 300;
   const cx = 250;
   const cy = 320;
+  const TICK_LEN = 13;     // every tick the same length
+  const WIN = 26;          // biomarkers rendered either side of the marker
 
   const toXY = (deg: number, r: number) => {
-    const rad = (deg * Math.PI) / 180;
-    return { x: cx + Math.sin(rad) * r, y: cy - Math.cos(rad) * r };
+    const a = (deg * Math.PI) / 180;
+    return { x: cx + Math.sin(a) * r, y: cy - Math.cos(a) * r };
   };
 
-  // Build a window of categories around the active one, laid out as a flat tick
-  // sequence with the ACTIVE category's centre at angle 0 (under the marker).
-  type Tick = { angle: number; major: boolean };
-  const ticks: Tick[] = [];
-  let prevDotAngle = 0;
-  let nextDotAngle = 0;
-  {
-    // sequence index of the active category's centre
-    const seq: { o: number; k: number; n: number }[] = [];
-    for (let o = -10; o <= 10; o++) {
-      const n = count(mod(active + o));
-      for (let k = 0; k < n; k++) seq.push({ o, k, n });
+  // Ticks live at ABSOLUTE angles (index * DEG); the group rotates by -tick*DEG so
+  // biomarker[tick] sits under the marker. Rotating a continuous group (no remount)
+  // keeps every tick radial → a smooth, true-to-arc sweep.
+  const t = Math.round(tick);
+  const lines = [];
+  const dots = [];
+  for (let i = t - WIN; i <= t + WIN; i++) {
+    const aDeg = i * DEG;
+    const p1 = toXY(aDeg, R);
+    const p2 = toXY(aDeg, R - TICK_LEN);
+    lines.push(
+      <line key={i} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="rgba(255,255,255,0.32)" strokeWidth={1.6} strokeLinecap="round" />,
+    );
+    if (IS_START[modT(i)]) {
+      const d = toXY(aDeg, R + 13);
+      dots.push(<circle key={`d${i}`} cx={d.x} cy={d.y} r={3} fill="rgba(255,255,255,0.5)" />);
     }
-    const activeStart = seq.findIndex((s) => s.o === 0);
-    const activeCentre = activeStart + (count(active) - 1) / 2;
-    const angleAt = (idx: number) => (idx - activeCentre) * DEG;
-    seq.forEach((s, idx) => {
-      const angle = angleAt(idx);
-      if (Math.abs(angle) <= VISIBLE_DEG) ticks.push({ angle, major: s.k % 5 === 0 });
-    });
-    const prevStart = seq.findIndex((s) => s.o === -1);
-    const nextStart = seq.findIndex((s) => s.o === 1);
-    prevDotAngle = angleAt(prevStart + (count(mod(active - 1)) - 1) / 2);
-    nextDotAngle = angleAt(nextStart + (count(mod(active + 1)) - 1) / 2);
   }
-
-  // Entry rotation so the new category scrolls in from the travel direction.
-  const travel = ((count(active) + count(mod(pos - dir))) / 2) * DEG;
-
-  const dot = (angle: number, r: number, fill: string, key: string) => {
-    const p = toXY(angle, R + 14);
-    return <circle key={key} cx={p.x} cy={p.y} r={r} fill={fill} />;
-  };
 
   return (
     <motion.div
@@ -159,39 +164,30 @@ function ArcDial({
       onDragStart={() => { draggingRef.current = true; }}
       onDragEnd={(_, info) => {
         draggingRef.current = false;
-        if (info.offset.x < -40) goTo(pos + 1);
-        else if (info.offset.x > 40) goTo(pos - 1);
+        if (info.offset.x < -40) onSwipe(1);
+        else if (info.offset.x > 40) onSwipe(-1);
       }}
     >
       <div style={{ position: "relative", width: 500, height: 130, overflow: "hidden", touchAction: "pan-y" }}>
         <svg width={500} height={360} viewBox="0 0 500 360" style={{ position: "absolute", top: 0, left: 0 }}>
-          {/* Strip scrolls in from the travel direction and settles centred */}
           <motion.g
-            key={pos}
-            initial={{ rotate: dir * travel }}
-            animate={{ rotate: 0 }}
-            transition={DIAL_EASE}
+            animate={{ rotate: -tick * DEG }}
+            transition={trans}
             style={{ transformOrigin: `${cx}px ${cy}px` }}
           >
-            {ticks.map((tk, i) => {
-              const a = toXY(tk.angle, R - (tk.major ? 16 : 10));
-              const b = toXY(tk.angle, R);
-              return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} />;
-            })}
-            {/* prev / next category position dots (above the ticks) */}
-            {dot(prevDotAngle, 3, "rgba(255,255,255,0.45)", "prev")}
-            {dot(nextDotAngle, 3, "rgba(255,255,255,0.45)", "next")}
+            {lines}
+            {dots}
           </motion.g>
 
           {/* Orange marker pinned at top centre (line + dot) */}
           <line x1={cx} y1={cy - R - 4} x2={cx} y2={cy - R + 19} stroke="#ff6a1a" strokeWidth={3} strokeLinecap="round" />
           <circle cx={cx} cy={cy - R - 12} r={4.5} fill="#ff6a1a" />
         </svg>
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, #0f0f0f, transparent 16%, transparent 84%, #0f0f0f)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, #0f0f0f, transparent 18%, transparent 82%, #0f0f0f)", pointerEvents: "none" }} />
       </div>
 
       <div style={{ marginTop: 4, display: "flex", justifyContent: "center" }}>
-        <RollingNumber value={count(active)} fontSize={73} fontWeight={500} />
+        <RollingNumber value={activeCount} fontSize={73} fontWeight={500} />
       </div>
     </motion.div>
   );
@@ -237,26 +233,53 @@ function PillMarquee({ active }: { active: number }) {
 }
 
 export function TrackMobile() {
-  const [pos, setPos] = useState(0);
-  const [dir, setDir] = useState(1);
-  const posRef = useRef(0);
+  const [tick, setTick] = useState(0);
+  const [catPos, setCatPos] = useState(0); // monotonic, for the carousel
+  const [trans, setTrans] = useState<typeof SWEEP | typeof JUMP>(SWEEP);
+  const tickRef = useRef(0);
+  const activeRef = useRef(0);
+  const catPosRef = useRef(0);
   const draggingRef = useRef(false);
-  const active = mod(pos);
 
-  const go = (np: number, d: number) => {
-    posRef.current = np;
-    setDir(d);
-    setPos(np);
-  };
-  const goTo = (p: number) => go(p, Math.sign(p - posRef.current) || 1);
+  const active = catOf(tick);
 
-  // Auto-advance one category; the timer restarts whenever pos changes
-  // (so a manual swipe/tap resets the countdown).
+  const moveCatPos = (next: number) => { catPosRef.current = next; setCatPos(next); };
+
+  // Continuous sweep: advance one biomarker every second. The timer restarts on
+  // every tick change, so a manual jump cleanly resumes ticking afterwards.
   useEffect(() => {
     if (draggingRef.current) return;
-    const t = window.setTimeout(() => go(posRef.current + 1, 1), AUTO_MS);
-    return () => window.clearTimeout(t);
-  }, [pos]);
+    const id = window.setTimeout(() => {
+      const nt = tickRef.current + 1;
+      const na = catOf(nt);
+      if (na !== activeRef.current) {      // crossed into the next category
+        activeRef.current = na;
+        moveCatPos(catPosRef.current + 1);
+      }
+      tickRef.current = nt;
+      setTrans(SWEEP);
+      setTick(nt);
+    }, TICK_MS);
+    return () => window.clearTimeout(id);
+  }, [tick]);
+
+  // Jump the sweep to the start of a category (carousel tap/swipe, arc swipe).
+  // `p` is a monotonic category position so the carousel glides the chosen way.
+  const selectCategory = (p: number) => {
+    const ci = mod(p);
+    const targetBio = CAT_FIRST[ci];
+    const mb = modT(tickRef.current);
+    let d = modT(targetBio - mb);
+    if (d > TOTAL / 2) d -= TOTAL;
+    const targetTick = tickRef.current + d;
+    activeRef.current = ci;
+    tickRef.current = targetTick;
+    moveCatPos(p);
+    setTrans(JUMP);
+    setTick(targetTick);
+  };
+
+  const onSwipe = (dir: 1 | -1) => selectCategory(catPosRef.current + dir);
 
   return (
     <div style={{ width: "100%", minHeight: "100vh", background: "#0f0f0f", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 72, paddingBottom: 48, gap: 48 }}>
@@ -265,9 +288,9 @@ export function TrackMobile() {
         <span style={{ color: "rgba(255,255,255,0.48)" }}>from 1000+ data points.</span>
       </h2>
 
-      <CategoryCarousel pos={pos} goTo={goTo} draggingRef={draggingRef} />
+      <CategoryCarousel pos={catPos} onPick={selectCategory} draggingRef={draggingRef} />
 
-      <ArcDial pos={pos} dir={dir} goTo={goTo} draggingRef={draggingRef} />
+      <ArcDial tick={tick} trans={trans} onSwipe={onSwipe} draggingRef={draggingRef} activeCount={count(active)} />
 
       <PillMarquee active={active} />
 
