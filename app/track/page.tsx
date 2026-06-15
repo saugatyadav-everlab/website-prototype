@@ -183,6 +183,7 @@ function TrackDesktop() {
                       }}
                     >
                       <motion.span
+                        initial={false}
                         animate={{ x: isActive ? DOT_SHIFT : 0 }}
                         transition={LIST_EASE}
                         style={{

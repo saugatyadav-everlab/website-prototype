@@ -40,7 +40,8 @@
       "Bash(git commit -q -m 'Rebuild mobile ArcDial as continuous biomarker strip *)",
       "Bash(git config *)",
       "Bash(git commit -q -m 'Mobile arc: continuous per-second biomarker sweep *)",
-      "Bash(git commit -q -m 'Mobile arc: fix pivot drift + discrete tick-tick stepping *)"
+      "Bash(git commit -q -m 'Mobile arc: fix pivot drift + discrete tick-tick stepping *)",
+      "Bash(git commit -q -m 'Desktop track: no entry slide on first category label *)"
     ]
   }
 }
