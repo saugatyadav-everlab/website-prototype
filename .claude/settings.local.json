@@ -44,7 +44,8 @@
       "Bash(git commit -q -m 'Desktop track: no entry slide on first category label *)",
       "Bash(git commit -q -m 'Add mobile /menu version *)",
       "Bash(git commit -q -m 'Mobile menu: transparent hamburger button, white icon *)",
-      "Bash(git commit -q -m 'Mobile menu: dropdown panel 4px below nav *)"
+      "Bash(git commit -q -m 'Mobile menu: dropdown panel 4px below nav *)",
+      "Bash(git commit -q -m 'Mobile menu panel: match nav bg, drop top padding *)"
     ]
   }
 }

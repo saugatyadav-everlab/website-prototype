@@ -143,10 +143,10 @@ export function MenuMobile() {
               style={{
                 marginTop: 4,
                 borderRadius: 20,
-                background: "rgba(0,0,0,0.48)",
+                background: "rgba(0,0,0,0.64)",
                 backdropFilter: "blur(64px)",
                 WebkitBackdropFilter: "blur(64px)",
-                padding: 8,
+                padding: "0 8px 8px",
                 pointerEvents: "auto",
                 transformOrigin: "top",
               }}
