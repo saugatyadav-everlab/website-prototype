@@ -48,7 +48,8 @@
       "Bash(git commit -q -m 'Mobile menu panel: match nav bg, drop top padding *)",
       "Bash(git commit -q -m 'Mobile menu: large button variant *)",
       "Bash(git commit -q -m 'Mobile menu: smaller, centred X icon *)",
-      "Bash(git commit -q -m 'Mobile menu: staggered, height + blur open/close animation *)"
+      "Bash(git commit -q -m 'Mobile menu: staggered, height + blur open/close animation *)",
+      "Bash(git commit -q -m 'Homepage list + menu polish \\(48% bg, smaller icon, faster anim\\) *)"
     ]
   }
 }

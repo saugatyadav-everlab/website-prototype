@@ -13,17 +13,17 @@ const PANEL_EASE = [0.22, 1, 0.36, 1] as const;
 
 // Container: collapse/expand height + fade + blur on appear/disappear.
 const panelVariants = {
-  closed: { opacity: 0, height: 0, filter: "blur(8px)", transition: { duration: 0.26, ease: PANEL_EASE } },
-  open: { opacity: 1, height: "auto", filter: "blur(0px)", transition: { duration: 0.32, ease: PANEL_EASE } },
+  closed: { opacity: 0, height: 0, filter: "blur(8px)", transition: { duration: 0.18, ease: PANEL_EASE } },
+  open: { opacity: 1, height: "auto", filter: "blur(0px)", transition: { duration: 0.22, ease: PANEL_EASE } },
 };
 // Orchestrates the stagger of the rows/buttons (reversed on close).
 const listVariants = {
-  closed: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
-  open: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+  closed: { transition: { staggerChildren: 0.025, staggerDirection: -1 } },
+  open: { transition: { staggerChildren: 0.04, delayChildren: 0.03 } },
 };
 const itemVariants = {
   closed: { opacity: 0, y: 8 },
-  open: { opacity: 1, y: 0, transition: { duration: 0.28, ease: PANEL_EASE } },
+  open: { opacity: 1, y: 0, transition: { duration: 0.2, ease: PANEL_EASE } },
 };
 
 const VALUES = [
@@ -96,7 +96,7 @@ export function MenuMobile() {
       >
         <motion.div
           initial={false}
-          animate={{ backgroundColor: scrolled || open ? "rgba(0,0,0,0.64)" : "rgba(0,0,0,0)" }}
+          animate={{ backgroundColor: scrolled || open ? "rgba(0,0,0,0.48)" : "rgba(0,0,0,0)" }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           style={{
             borderRadius: 16,
@@ -138,7 +138,7 @@ export function MenuMobile() {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <motion.path
                   initial={false}
-                  animate={{ d: open ? "M7 7 L17 17" : "M3 7 L21 7" }}
+                  animate={{ d: open ? "M7 7 L17 17" : "M4 8 L20 8" }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   stroke="#fff"
                   strokeWidth="2"
@@ -146,7 +146,7 @@ export function MenuMobile() {
                 />
                 <motion.path
                   initial={false}
-                  animate={{ d: open ? "M17 7 L7 17" : "M3 17 L14 17" }}
+                  animate={{ d: open ? "M17 7 L7 17" : "M4 16 L13 16" }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   stroke="#fff"
                   strokeWidth="2"
@@ -169,7 +169,7 @@ export function MenuMobile() {
               style={{
                 marginTop: 4,
                 borderRadius: 20,
-                background: "rgba(0,0,0,0.64)",
+                background: "rgba(0,0,0,0.48)",
                 backdropFilter: "blur(64px)",
                 WebkitBackdropFilter: "blur(64px)",
                 overflow: "hidden",

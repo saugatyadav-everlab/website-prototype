@@ -198,9 +198,9 @@ function MenuDesktop() {
           initial={false}
           animate={{
             width: floating ? floatW : restW,
-            backgroundColor: floating ? "rgba(0,0,0,0.64)" : "rgba(0,0,0,0)",
+            backgroundColor: floating ? "rgba(0,0,0,0.48)" : "rgba(0,0,0,0)",
           }}
-          transition={{ type: "spring", visualDuration: 0.45, bounce: 0.25 }}
+          transition={{ type: "spring", visualDuration: 0.4, bounce: 0.25 }}
           style={{
             borderRadius: 20,
             overflow: "hidden",
