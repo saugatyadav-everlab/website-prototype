@@ -176,16 +176,15 @@ export function MenuMobile() {
                 pointerEvents: "auto",
               }}
             >
-              <motion.div variants={listVariants} style={{ display: "flex", flexDirection: "column", padding: "0 8px 8px" }}>
+              <motion.div variants={listVariants} style={{ display: "flex", flexDirection: "column", padding: "8px" }}>
                 {/* Links */}
-                {MENU_ITEMS.map((label, i) => (
+                {MENU_ITEMS.map((label) => (
                   <motion.a
                     key={label}
                     href="#"
                     variants={itemVariants}
                     style={{
-                      padding: "20px 12px",
-                      borderBottom: i < MENU_ITEMS.length - 1 ? "0.5px solid rgba(255,255,255,0.16)" : "none",
+                      padding: "16px 12px",
                       fontFamily: SAANS,
                       fontSize: 16,
                       fontWeight: 500,
